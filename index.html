@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Future Coding Educator Companion</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #4B1D95;
+            --primary-light: #7C3AED;
+            --gold: #FBBF24;
+            --bg: #F8FAFC;
+            --text-dark: #1F2937;
+            --text-muted: #64748B;
+            --success: #22C55E;
+            --danger: #EF4444;
+            --white: #FFFFFF;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 40px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            padding: 2.2rem 1.3rem;
+            border-bottom-left-radius: 2.5rem;
+            border-bottom-right-radius: 2.5rem;
+            box-shadow: 0 4px 20px rgba(75, 29, 149, 0.3);
+            text-align: center;
+            position: relative;
+        }
+
+        .header-title {
+            font-size: 1.7rem;
+            font-weight: 800;
+            margin-bottom: 0.4rem;
+        }
+
+        .header-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.92;
+            margin-bottom: 1.2rem;
+        }
+
+        .welcome-box {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 1.3rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: right;
+        }
+
+        .welcome-box strong {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .welcome-box span {
+            display: block;
+            font-size: 0.83rem;
+            opacity: 0.92;
+        }
+
+        .progress-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+        }
+
+        .progress-bar-container {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--gold);
+            width: 0%;
+            transition: width 0.8s ease-out;
+            box-shadow: 0 0 10px var(--gold);
+        }
+
+        .motivation-msg {
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            font-style: italic;
+            min-height: 1.2rem;
+        }
+
+        .save-warning {
+            background: rgba(251, 191, 36, 0.18);
+            color: #fff;
+            padding: 0.8rem;
+            border-radius: 1rem;
+            font-size: 0.78rem;
+            margin-top: 1rem;
+            line-height: 1.5;
+            border: 1px solid rgba(251, 191, 36, 0.25);
+        }
+
+        main {
+            padding: 1.4rem;
+            flex-grow: 1;
+        }
+
+        .section-title {
+            font-size: 1.18rem;
+            font-weight: 800;
+            margin-bottom: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .continue-btn {
+            margin-top: 1rem;
+        }
+
+        .days-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .day-card {
+            background: var(--white);
+            border-radius: 1.2rem;
+            padding: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--card-shadow);
+            border: 2px solid transparent;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .day-card.locked {
+            opacity: 0.72;
+            filter: grayscale(0.45);
+            background: #f1f5f9;
+            cursor: not-allowed;
+        }
+
+        .day-card.completed {
+            border-color: var(--success);
+            background: linear-gradient(135deg, #ffffff, #f0fdf4);
+        }
+
+        .day-card.active {
+            border-color: var(--primary-light);
+        }
+
+        .day-card.active:hover {
+            transform: translateY(-2px);
+        }
+
+        .day-info {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            min-width: 0;
+        }
+
+        .day-number {
+            width: 44px;
+            min-width: 44px;
+            height: 44px;
+            background: var(--bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .completed .day-number {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .day-text h3 {
+            margin: 0;
+            font-size: 0.96rem;
+            font-weight: 800;
+            white-space: normal;
+        }
+
+        .day-text p {
+            margin: 0.15rem 0 0;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 999px;
+            margin-top: 0.35rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .pill-completed { background: #DCFCE7; color: #166534; }
+        .pill-active { background: #EDE9FE; color: #5B21B6; }
+        .pill-locked { background: #E2E8F0; color: #475569; }
+
+        .day-status-icon {
+            color: var(--text-muted);
+            margin-right: 0.5rem;
+        }
+
+        .completed .day-status-icon {
+            color: var(--success);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .modal {
+            background: var(--white);
+            width: 100%;
+            max-width: 500px;
+            border-top-left-radius: 2rem;
+            border-top-right-radius: 2rem;
+            padding: 2rem 1.3rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge-display {
+            width: 78px;
+            height: 78px;
+            background: linear-gradient(45deg, var(--gold), #f59e0b);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(251, 191, 36, 0.4);
+            color: var(--white);
+        }
+
+        .mission-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.45rem;
+        }
+
+        .checklist {
+            margin: 1.3rem 0;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.95rem;
+            background: var(--bg);
+            border-radius: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .check-item input {
+            width: 22px;
+            min-width: 22px;
+            height: 22px;
+            accent-color: var(--success);
+            cursor: pointer;
+        }
+
+        .check-item.checked {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .check-text {
+            font-size: 0.93rem;
+            flex: 1;
+        }
+
+        .btn {
+            display: flex;
+            width: 100%;
+            min-height: 54px;
+            padding: 0.95rem 1rem;
+            border: none;
+            border-radius: 1rem;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: var(--transition);
+            margin-bottom: 0.85rem;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+            box-shadow: 0 4px 14px rgba(75, 29, 149, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: var(--text-muted);
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-soft {
+            background: #F1F5F9;
+            color: var(--text-dark);
+        }
+
+        .btn-danger {
+            background: transparent;
+            border: 1.5px solid #FCA5A5;
+            color: #B91C1C;
+            font-size: 0.9rem;
+            min-height: 46px;
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 430px;
+            background: var(--success);
+            color: white;
+            padding: 1rem 1.2rem;
+            border-radius: 1.2rem;
+            font-weight: 700;
+            z-index: 2000;
+            display: none;
+            text-align: center;
+            box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.4);
+        }
+
+        .celebration-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            z-index: 1500;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem 1.4rem;
+            text-align: center;
+            overflow-y: auto;
+        }
+
+        .badges-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin: 1.6rem 0;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .mini-badge {
+            min-height: 78px;
+            background: linear-gradient(135deg, var(--gold), #F59E0B);
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            color: white;
+            font-size: 1rem;
+            padding: 0.65rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-weight: 800;
+        }
+
+        .mini-badge small {
+            font-size: 0.72rem;
+            color: white;
+            line-height: 1.25;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #f1f5f9;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .footer-brand {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 380px) {
+            .header-title { font-size: 1.45rem; }
+            .day-card { padding: 0.95rem; }
+            .day-text h3 { font-size: 0.9rem; }
+            .badges-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-title">Future Coding Educator</div>
+            <div class="header-subtitle">جواز تقدمك في تحدي 11 يوماً</div>
+
+            <div class="welcome-box">
+                <strong>مرحباً بك في مساحة التقدم الخاصة بك</strong>
+                <span>اتبعي المهام يوماً بعد يوم، أكملي الخطوات، واحتفلي بكل إنجاز صغير.</span>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-info">
+                    <span id="progress-percent">0%</span>
+                    <span id="progress-tasks">0 / 11 مهام</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar-fill"></div>
+                </div>
+                <div id="motivation-text" class="motivation-msg">كل مهارة كبيرة تبدأ بخطوة صغيرة.</div>
+                <div class="save-warning">
+                    ⚠️ يتم حفظ تقدمك على نفس الجهاز ونفس المتصفح فقط. افتحي التطبيق دائماً من نفس الرابط.
+                </div>
+            </div>
+
+            <button class="btn btn-primary continue-btn" onclick="scrollToActiveDay()">متابعة التحدي</button>
+        </header>
+
+        <main>
+            <h2 class="section-title">
+                <i data-lucide="calendar" style="width: 20px;"></i>
+                جدول التحدي 11 يوماً
+            </h2>
+
+            <div id="days-container" class="days-grid"></div>
+
+            <div id="final-cta" style="display: none; margin-top: 2rem;">
+                <button class="btn btn-primary" onclick="showCelebration()">🎉 عرض إنجازك النهائي</button>
+            </div>
+
+            <button class="btn btn-danger" onclick="resetProgress()" style="margin-top: 1.5rem;">
+                إعادة ضبط التقدم
+            </button>
+
+            <div class="footer-brand">Powered by Junior Preneur</div>
+        </main>
+    </div>
+
+    <div id="mission-overlay" class="overlay" onclick="handleOverlayClick(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <button class="close-modal" onclick="closeMission()"><i data-lucide="x"></i></button>
+
+            <div class="modal-header">
+                <div class="badge-display" id="modal-badge-icon">
+                    <i data-lucide="award" style="width: 40px; height: 40px;"></i>
+                </div>
+                <div id="modal-badge-name" style="color: var(--gold); font-weight: 800; font-size: 0.9rem; margin-bottom: 0.5rem;"></div>
+                <h2 class="mission-title" id="modal-title"></h2>
+                <p id="modal-description" style="color: var(--text-muted);"></p>
+            </div>
+
+            <div class="checklist" id="checklist-container"></div>
+
+            <div id="mission-actions">
+                <button id="complete-day-btn" class="btn btn-primary" onclick="completeDay()">إكمال المهمة والحصول على الشارة</button>
+                <button id="whatsapp-share-btn" class="btn btn-whatsapp" style="display: none;" onclick="shareOnWhatsapp()">
+                    <i data-lucide="share-2"></i>
+                    نسخ رسالة الإنجاز وفتح المجموعة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="celebration-screen" class="celebration-screen">
+        <h1 style="font-size: 2.4rem; color: var(--primary); margin-bottom: 1rem;">🎉 مبروك!</h1>
+        <p style="font-size: 1.1rem; color: var(--text-dark); max-width: 340px; margin: 0 auto;">
+            لقد أكملت تحدي Future Coding Educator بنجاح. أصبحت لديك الآن قاعدة حقيقية للبدء في تعليم البرمجة للأطفال.
+        </p>
+
+        <div class="badges-row" id="final-badges-list"></div>
+
+        <div style="width: 100%; max-width: 350px; margin-top: 1rem;">
+            <button class="btn btn-primary" onclick="copyCertificate()">نسخ نص الشهادة الرمزية</button>
+            <button class="btn btn-outline" onclick="window.open('https://chat.whatsapp.com/HQEmpA5BDJqBMips7a202d', '_blank')">اكتشف برنامج TOT المتقدم</button>
+            <button class="btn btn-soft" onclick="closeCelebration()">العودة للجدول</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/HQEmpA5BDJqBMips7a202d";
+        const APP_ID = "future_coding_companion_v2";
+
+        const missionData = [
+            { id: 1, title: "فهم الأطفال 5–8 سنوات", badge: "مستكشف 5–8", desc: "أكملي ملف تعريف مجموعتك المستقبلية.", items: ["حددت الفئة العمرية للمجموعة", "اخترت مدة الجلسة المناسبة", "حددت صعوبة محتملة وكيفية التعامل معها", "دونت هدفي الرئيسي من التدريس"] },
+            { id: 2, title: "التسلسل والنشاط بدون شاشة", badge: "مبدع الأنشطة", desc: "ابتكري نشاطاً بسيطاً بدون شاشة حول مفهوم التسلسل.", items: ["اخترت الهدف التعليمي", "حددت الأدوات والمواد اللازمة", "كتبت خطوات النشاط بوضوح", "شاركت الفكرة مع المجموعة"] },
+            { id: 3, title: "إدارة المجموعة بدون فوضى", badge: "حارس الإطار", desc: "أنشئي ميثاقاً صغيراً لإدارة الجلسة.", items: ["اخترت 3 قواعد بسيطة للأطفال", "حددت روتيناً لبداية الجلسة", "اخترت تقنية للهدوء والتركيز"] },
+            { id: 4, title: "Code.org بدون خوف", badge: "دليل Code.org", desc: "جرّبي نشاط Pre-Reader وحددي الصعوبات الممكنة.", items: ["فتحت منصة Code.org", "جربت نشاطاً واحداً على الأقل", "حددت عائقاً محتملاً للطفل", "كتبت كيف سأساعد الطفل على تجاوزه"] },
+            { id: 5, title: "الجلسة الأولى جاهزة", badge: "الجلسة الأولى", desc: "اجمعي عناصر جلستك التعليمية الأولى.", items: ["أعددت مقدمة مشوقة", "أضفت النشاط بدون شاشة", "خططت للجزء الخاص بالشاشة", "وضعت خاتمة بسيطة للتقييم"] },
+            { id: 6, title: "المراجعة والتطوير", badge: "منتصف الطريق", desc: "راجعي وطوري الجلسة الأولى بناءً على الملاحظات.", items: ["حضرت البث المباشر أو شاهدت الإعادة", "دونت خطأً سأحاول تجنبه", "حسّنت عنصراً من خطة الجلسة", "احتفلت بتقدمي"] },
+            { id: 7, title: "ScratchJr بدون ارتباك", badge: "بداية ScratchJr", desc: "أنشئي رسماً متحركاً بسيطاً.", items: ["فتحت تطبيق ScratchJr", "أضفت شخصية للمشروع", "استخدمت بلوك حركة", "أضفت صوتاً أو كلاماً للشخصية"] },
+            { id: 8, title: "الجلسة الثانية جاهزة", badge: "الجلسة الثانية", desc: "ابني الجلسة الثانية باستخدام ScratchJr.", items: ["حددت هدف الجلسة", "حضرت نشاط البداية", "أضفت جزء ScratchJr", "خططت لخاتمة قصيرة"] },
+            { id: 9, title: "مسار بيداغوجي مصغر", badge: "مهندس المسار", desc: "أنشئي خارطة طريق من 6 إلى 8 جلسات.", items: ["كتبت قائمة الجلسات", "حددت مفهوماً واحداً لكل جلسة", "اخترت الأداة الأساسية", "راجعت تسلسل الصعوبة"] },
+            { id: 10, title: "محاكاة الواقع", badge: "جاهز للتنفيذ", desc: "حاكي طريقة تقديمك لأول جلسة.", items: ["أعددت نصاً قصيراً للشرح", "سجلت محاكاة صوتية أو مرئية أو كتبتها", "حددت ما أحتاج إلى تحسينه"] },
+            { id: 11, title: "خطة 30 يوماً", badge: "مدرب المستقبل", desc: "ارسمي خطة عملية للانطلاق بعد التحدي.", items: ["اخترت تاريخاً للبدء", "حددت شكل التدريس", "حددت أول جمهور مستهدف", "كتبت خطوتي القادمة بوضوح"] }
+        ];
+
+        let appState = {
+            completedDays: [],
+            checklists: {}
+        };
+
+        let currentDayId = null;
+
+        window.onload = function () {
+            loadState();
+            renderDays();
+            updateProgress();
+            refreshIcons();
+        };
+
+        function refreshIcons() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem(APP_ID);
+            if (!saved) return;
+
+            try {
+                const parsed = JSON.parse(saved);
+                appState.completedDays = Array.isArray(parsed.completedDays) ? parsed.completedDays : [];
+                appState.checklists = parsed.checklists || {};
+            } catch (e) {
+                appState = { completedDays: [], checklists: {} };
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem(APP_ID, JSON.stringify(appState));
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const total = missionData.length;
+            const completedCount = appState.completedDays.length;
+            const percent = Math.round((completedCount / total) * 100);
+
+            document.getElementById("progress-percent").innerText = `${percent}%`;
+            document.getElementById("progress-tasks").innerText = `${completedCount} / ${total} مهام`;
+            document.getElementById("progress-bar").style.width = `${percent}%`;
+
+            const motivationText = document.getElementById("motivation-text");
+            if (percent === 0) {
+                motivationText.innerText = "كل مهارة كبيرة تبدأ بخطوة صغيرة.";
+            } else if (percent < 50) {
+                motivationText.innerText = "بداية رائعة! الاستمرارية أهم من السرعة.";
+            } else if (percent < 100) {
+                motivationText.innerText = "أنت لا تتعلمين فقط… أنت تبنين طريقة عمل حقيقية.";
+            } else {
+                motivationText.innerText = "أصبحت لديك الآن قاعدة حقيقية للانطلاق.";
+                document.getElementById("final-cta").style.display = "block";
+            }
+
+            if (percent < 100) {
+                document.getElementById("final-cta").style.display = "none";
+            }
+        }
+
+        function renderDays() {
+            const container = document.getElementById("days-container");
+            container.innerHTML = "";
+
+            missionData.forEach((day) => {
+                const isCompleted = appState.completedDays.includes(day.id);
+                const isLocked = day.id > 1 && !appState.completedDays.includes(day.id - 1);
+                const statusText = isCompleted ? "مكتمل" : (isLocked ? "مغلق" : "متاح");
+                const pillClass = isCompleted ? "pill-completed" : (isLocked ? "pill-locked" : "pill-active");
+                const iconName = isCompleted ? "check-circle" : (isLocked ? "lock" : "chevron-left");
+
+                const card = document.createElement("div");
+                card.className = `day-card ${isCompleted ? "completed" : ""} ${isLocked ? "locked" : "active"}`;
+                card.setAttribute("data-day-id", day.id);
+                card.onclick = () => {
+                    if (isLocked) {
+                        showToast("أكملي المهمة السابقة أولاً");
+                        return;
+                    }
+                    openMission(day.id);
+                };
+
+                card.innerHTML = `
+                    <div class="day-info">
+                        <div class="day-number">${day.id}</div>
+                        <div class="day-text">
+                            <h3>اليوم ${day.id}: ${day.title}</h3>
+                            <p>الشارة: ${day.badge}</p>
+                            <span class="status-pill ${pillClass}">${statusText}</span>
+                        </div>
+                    </div>
+                    <div class="day-status-icon">
+                        <i data-lucide="${iconName}"></i>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            refreshIcons();
+        }
+
+        function openMission(id) {
+            currentDayId = id;
+            const day = missionData.find(d => d.id === id);
+            const isCompleted = appState.completedDays.includes(id);
+
+            document.getElementById("modal-title").innerText = day.title;
+            document.getElementById("modal-description").innerText = day.desc;
+            document.getElementById("modal-badge-name").innerText = `شارة: ${day.badge}`;
+
+            const listContainer = document.getElementById("checklist-container");
+            listContainer.innerHTML = "";
+
+            if (!appState.checklists[id]) {
+                appState.checklists[id] = new Array(day.items.length).fill(false);
+                saveState();
+            }
+
+            const savedCheck = appState.checklists[id];
+
+            day.items.forEach((item, index) => {
+                const div = document.createElement("label");
+                div.className = `check-item ${savedCheck[index] ? "checked" : ""}`;
+                div.innerHTML = `
+                    <input type="checkbox" ${savedCheck[index] ? "checked" : ""} onchange="toggleCheck(${index}, this)">
+                    <span class="check-text">${item}</span>
+                `;
+                listContainer.appendChild(div);
+            });
+
+            document.getElementById("mission-overlay").style.display = "flex";
+            document.getElementById("complete-day-btn").style.display = isCompleted ? "none" : "flex";
+            document.getElementById("whatsapp-share-btn").style.display = isCompleted ? "flex" : "none";
+            updateCompleteButton();
+            refreshIcons();
+        }
+
+        function toggleCheck(index, checkbox) {
+            if (!currentDayId) return;
+
+            const day = missionData.find(d => d.id === currentDayId);
+            if (!appState.checklists[currentDayId]) {
+                appState.checklists[currentDayId] = new Array(day.items.length).fill(false);
+            }
+
+            appState.checklists[currentDayId][index] = checkbox.checked;
+            checkbox.closest(".check-item").classList.toggle("checked", checkbox.checked);
+            saveState();
+            updateCompleteButton();
+            showToast("تم حفظ تقدمك تلقائياً");
+        }
+
+        function updateCompleteButton() {
+            const btn = document.getElementById("complete-day-btn");
+            if (!currentDayId || !btn) return;
+
+            const day = missionData.find(d => d.id === currentDayId);
+            const checks = appState.checklists[currentDayId] || new Array(day.items.length).fill(false);
+            const allChecked = checks.length === day.items.length && checks.every(Boolean);
+
+            btn.disabled = !allChecked;
+        }
+
+        function closeMission() {
+            document.getElementById("mission-overlay").style.display = "none";
+        }
+
+        function handleOverlayClick(event) {
+            if (event.target.id === "mission-overlay") {
+                closeMission();
+            }
+        }
+
+        function completeDay() {
+            if (!currentDayId) return;
+
+            const day = missionData.find(d => d.id === currentDayId);
+            const checks = appState.checklists[currentDayId] || [];
+            const allChecked = checks.length === day.items.length && checks.every(Boolean);
+
+            if (!allChecked) {
+                showToast("أكملي كل خطوات المهمة أولاً");
+                return;
+            }
+
+            if (!appState.completedDays.includes(currentDayId)) {
+                appState.completedDays.push(currentDayId);
+                appState.completedDays.sort((a, b) => a - b);
+                saveState();
+                renderDays();
+
+                if (window.confetti) {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ["#4B1D95", "#FBBF24", "#22C55E"]
+                    });
+                }
+
+                showToast(`🎉 مبروك! حصلت على شارة ${day.badge}`);
+
+                document.getElementById("complete-day-btn").style.display = "none";
+                document.getElementById("whatsapp-share-btn").style.display = "flex";
+
+                if (appState.completedDays.length === 11) {
+                    setTimeout(showCelebration, 1200);
+                }
+            }
+        }
+
+        function shareOnWhatsapp() {
+            const day = missionData.find(d => d.id === currentDayId);
+            const message = `✅ أنهيت مهمة اليوم من تحدي Future Coding Educator\n\nاليوم: ${day.title}\nالشارة: ${day.badge}\n\nالحمد لله خطوة جديدة تمت بنجاح 🚀`;
+
+            copyText(message).then(() => {
+                showToast("تم نسخ رسالة الإنجاز. الصقيها في مجموعة واتساب.");
+                setTimeout(() => {
+                    window.open(WHATSAPP_GROUP_URL, "_blank");
+                }, 800);
+            });
+        }
+
+        function showCelebration() {
+            const screen = document.getElementById("celebration-screen");
+            const badgesList = document.getElementById("final-badges-list");
+            badgesList.innerHTML = "";
+
+            missionData.forEach(d => {
+                const b = document.createElement("div");
+                b.className = "mini-badge";
+                b.title = d.badge;
+                b.innerHTML = `<i data-lucide="award"></i><small>${d.badge}</small>`;
+                badgesList.appendChild(b);
+            });
+
+            screen.style.display = "flex";
+
+            if (window.confetti) {
+                confetti({
+                    particleCount: 150,
+                    spread: 100,
+                    origin: { y: 0.6 },
+                    colors: ["#4B1D95", "#FBBF24", "#22C55E"]
+                });
+            }
+
+            refreshIcons();
+        }
+
+        function closeCelebration() {
+            document.getElementById("celebration-screen").style.display = "none";
+        }
+
+        function copyCertificate() {
+            const text = `🎉 شهادة رمزية
+
+أشهد أنني أكملت تحدي Future Coding Educator لمدة 11 يوماً.
+
+تعلمت خلال هذا التحدي أساسيات:
+- فهم الأطفال من 5 إلى 8 سنوات
+- تصميم أنشطة بدون شاشة
+- استعمال Code.org
+- استعمال ScratchJr
+- بناء حصص تعليمية أولية
+- إعداد خطة انطلاق عملية
+
+أنا الآن أمتلك قاعدة أولية للبدء في تعليم البرمجة للأطفال.`;
+
+            copyText(text).then(() => {
+                showToast("تم نسخ نص الشهادة الرمزية");
+            });
+        }
+
+        function copyText(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text);
+            }
+
+            return new Promise((resolve) => {
+                const textarea = document.createElement("textarea");
+                textarea.value = text;
+                textarea.style.position = "fixed";
+                textarea.style.opacity = "0";
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textarea);
+                resolve();
+            });
+        }
+
+        function resetProgress() {
+            const confirmed = confirm("هل أنت متأكدة من إعادة ضبط التقدم؟");
+            if (!confirmed) return;
+
+            localStorage.removeItem(APP_ID);
+            appState = {
+                completedDays: [],
+                checklists: {}
+            };
+            currentDayId = null;
+            renderDays();
+            updateProgress();
+            closeMission();
+            showToast("تمت إعادة ضبط التقدم");
+        }
+
+        function scrollToActiveDay() {
+            const nextDay = missionData.find(day => !appState.completedDays.includes(day.id));
+            const targetId = nextDay ? nextDay.id : 11;
+            const target = document.querySelector(`[data-day-id="${targetId}"]`);
+
+            if (target) {
+                target.scrollIntoView({ behavior: "smooth", block: "center" });
+                target.classList.add("active-pulse");
+                setTimeout(() => target.classList.remove("active-pulse"), 1000);
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.innerText = msg;
+            toast.style.display = "block";
+
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                toast.style.display = "none";
+            }, 2600);
+        }
+    </script>
+</body>
+</html>
