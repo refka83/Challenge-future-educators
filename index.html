@@ -1024,7 +1024,33 @@ function completeMission() {
       spread: 90,
       origin: { y: 0.6 },
       colors: ["#4B1D95", "#7C3AED", "#FBBF24", "#22C55E"]
-    });
+    });confetti({
+  particleCount: 180,
+  spread: 120,
+  startVelocity: 45,
+  gravity: 0.8,
+  scalar: 1.1,
+  origin: { x: 0.5, y: 0.15 },
+  colors: ["#4B1D95", "#7C3AED", "#FBBF24", "#22C55E"]
+});
+
+setTimeout(() => {
+  confetti({
+    particleCount: 90,
+    spread: 90,
+    startVelocity: 35,
+    origin: { x: 0.2, y: 0.2 },
+    colors: ["#4B1D95", "#FBBF24", "#22C55E"]
+  });
+
+  confetti({
+    particleCount: 90,
+    spread: 90,
+    startVelocity: 35,
+    origin: { x: 0.8, y: 0.2 },
+    colors: ["#4B1D95", "#FBBF24", "#22C55E"]
+  });
+}, 250);
   }
 
   showRewardPopup(mission);
