@@ -71,6 +71,7 @@ border-radius:18px;
 margin-top:1rem;
 font-size:.9rem;
 line-height:1.7;
+white-space:pre-line;
 }
 
 .stats{
@@ -267,6 +268,7 @@ margin-bottom:10px;
 display:flex;
 gap:10px;
 align-items:center;
+justify-content:space-between;
 }
 
 .check.checked{
@@ -274,10 +276,28 @@ background:#f0fdf4;
 border:1px solid #bbf7d0;
 }
 
+.check-right{
+display:flex;
+gap:10px;
+align-items:center;
+flex:1;
+}
+
 .check input{
 width:22px;
 height:22px;
 accent-color:var(--success);
+}
+
+.item-xp{
+background:#fffbeb;
+border:1px solid #fde68a;
+color:#92400e;
+font-size:.72rem;
+font-weight:800;
+padding:3px 8px;
+border-radius:999px;
+white-space:nowrap;
 }
 
 .btn{
@@ -344,6 +364,46 @@ z-index:3000;
 font-weight:700;
 max-width:90%;
 text-align:center;
+}
+
+.reward-popup{
+position:fixed;
+inset:0;
+display:none;
+align-items:center;
+justify-content:center;
+z-index:1800;
+padding:20px;
+pointer-events:none;
+}
+
+.reward-card{
+background:white;
+width:100%;
+max-width:380px;
+padding:2rem 1.4rem;
+border-radius:30px;
+text-align:center;
+box-shadow:0 20px 55px rgba(0,0,0,.22);
+animation:pop .35s ease;
+}
+
+@keyframes pop{
+from{opacity:0;transform:scale(.9) translateY(20px)}
+to{opacity:1;transform:scale(1) translateY(0)}
+}
+
+.success-circle{
+width:105px;
+height:105px;
+border-radius:50%;
+background:linear-gradient(135deg,#34D399,#10B981);
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+margin:auto;
+box-shadow:0 15px 30px rgba(16,185,129,.32);
 }
 
 .final{
@@ -518,7 +578,7 @@ margin-top:1.5rem;
 
 <div id="checks"></div>
 
-<button id="completeBtn" class="btn primary" onclick="completeMission()">إكمال المهمة</button>
+<button id="completeBtn" class="btn primary" onclick="completeMission()">إكمال مهمة اليوم</button>
 
 <button id="shareBtn" class="btn whatsapp" style="display:none" onclick="shareWhatsApp()">مشاركة الإنجاز</button>
 
@@ -527,19 +587,14 @@ margin-top:1.5rem;
 </div>
 </div>
 
-<div class="center" id="rewardScreen">
-<div class="center-box">
-<div class="badge" style="background:linear-gradient(135deg,#34D399,#10B981)">
-<i data-lucide="check"></i>
+<div id="rewardPopup" class="reward-popup">
+<div class="reward-card">
+<div class="success-circle">
+<i data-lucide="check" style="width:65px;height:65px"></i>
 </div>
-
-<h2 id="rewardTitle" style="color:var(--primary)">أحسنتِ!</h2>
-
-<div id="rewardXP" class="reward" style="margin:auto;margin-top:10px">+0 XP</div>
-
-<p id="rewardText"></p>
-
-<button class="btn primary" onclick="closeReward()">متابعة 🚀</button>
+<h2 id="rewardTitle" style="color:var(--primary);font-size:1.7rem">أحسنتِ!</h2>
+<div id="rewardXP" class="reward" style="font-size:.9rem"></div>
+<p id="rewardText" style="color:var(--dark);font-size:1rem;line-height:1.7"></p>
 </div>
 </div>
 
@@ -574,98 +629,141 @@ Junior Preneur
 </div>
 
 <div class="toast" id="toast"></div>
+
 <script>
-const STORAGE = "future_educator_v5";
+const STORAGE = "future_educator_v6";
 const WHATSAPP_GROUP = "https://chat.whatsapp.com/HQEmpA5BDJqBMips7a202d";
 
 const missions = [
   {
     id: 1,
-    xp: 2,
     title: "فهم الأطفال",
     badge: "مستكشف",
     desc: "فهم خصائص الأطفال من 5 إلى 8 سنوات.",
-    items: ["حددت العمر", "اخترت مدة الحصة", "حددت صعوبة محتملة", "كتبت الهدف"]
+    items: [
+      { text: "حددت العمر", xp: 1 },
+      { text: "اخترت مدة الحصة", xp: 3 },
+      { text: "حددت صعوبة محتملة", xp: 5 },
+      { text: "كتبت الهدف", xp: 4 }
+    ]
   },
   {
     id: 2,
-    xp: 3,
     title: "نشاط بدون شاشة",
     badge: "مبدع الأنشطة",
     desc: "إنشاء نشاط بسيط بدون شاشة.",
-    items: ["اخترت الهدف", "حددت الأدوات", "كتبت الخطوات", "شاركت الفكرة"]
+    items: [
+      { text: "اخترت الهدف", xp: 2 },
+      { text: "حددت الأدوات", xp: 4 },
+      { text: "كتبت الخطوات", xp: 3 },
+      { text: "شاركت الفكرة", xp: 6 }
+    ]
   },
   {
     id: 3,
-    xp: 3,
     title: "إدارة المجموعة",
     badge: "حارس الإطار",
     desc: "إدارة الأطفال بطريقة واضحة وهادئة.",
-    items: ["كتبت 3 قواعد", "اخترت روتين البداية", "اخترت طريقة تهدئة"]
+    items: [
+      { text: "كتبت 3 قواعد", xp: 5 },
+      { text: "اخترت روتين البداية", xp: 2 },
+      { text: "اخترت طريقة تهدئة", xp: 4 }
+    ]
   },
   {
     id: 4,
-    xp: 4,
     title: "Code.org",
     badge: "دليل Code.org",
     desc: "تجربة نشاط من Code.org وتحديد الصعوبات.",
-    items: ["فتحت المنصة", "جربت نشاطاً", "حددت عائقاً", "كتبت طريقة المساعدة"]
+    items: [
+      { text: "فتحت المنصة", xp: 1 },
+      { text: "جربت نشاطاً", xp: 5 },
+      { text: "حددت عائقاً", xp: 4 },
+      { text: "كتبت طريقة المساعدة", xp: 6 }
+    ]
   },
   {
     id: 5,
-    xp: 6,
     title: "الحصة الأولى",
     badge: "الحصة الأولى",
     desc: "تحضير أول حصة تعليمية كاملة.",
-    items: ["حضرت المقدمة", "أضفت النشاط", "حضرت جزء الشاشة", "حضرت الخاتمة"]
+    items: [
+      { text: "حضرت المقدمة", xp: 3 },
+      { text: "أضفت النشاط", xp: 5 },
+      { text: "حضرت جزء الشاشة", xp: 6 },
+      { text: "حضرت الخاتمة", xp: 4 }
+    ]
   },
   {
     id: 6,
-    xp: 4,
     title: "التطوير",
     badge: "منتصف الطريق",
     desc: "مراجعة وتحسين الحصة.",
-    items: ["حضرت اللايف أو شاهدت التسجيل", "كتبت خطأً لتجنبه", "حسنت الحصة", "احتفلت بالتقدم"]
+    items: [
+      { text: "حضرت اللايف أو شاهدت التسجيل", xp: 3 },
+      { text: "كتبت خطأً لتجنبه", xp: 5 },
+      { text: "حسنت الحصة", xp: 7 },
+      { text: "احتفلت بالتقدم", xp: 2 }
+    ]
   },
   {
     id: 7,
-    xp: 4,
     title: "ScratchJr",
     badge: "بداية ScratchJr",
     desc: "إنشاء مشروع بسيط باستعمال ScratchJr.",
-    items: ["فتحت التطبيق", "أضفت شخصية", "استعملت حركة", "أضفت صوتاً أو كلاماً"]
+    items: [
+      { text: "فتحت التطبيق", xp: 2 },
+      { text: "أضفت شخصية", xp: 3 },
+      { text: "استعملت حركة", xp: 5 },
+      { text: "أضفت صوتاً أو كلاماً", xp: 6 }
+    ]
   },
   {
     id: 8,
-    xp: 6,
     title: "الحصة الثانية",
     badge: "الحصة الثانية",
     desc: "بناء الحصة الثانية باستعمال ScratchJr.",
-    items: ["اخترت الهدف", "حضرت البداية", "أضفت المشروع", "حضرت الخاتمة"]
+    items: [
+      { text: "اخترت الهدف", xp: 4 },
+      { text: "حضرت البداية", xp: 3 },
+      { text: "أضفت المشروع", xp: 7 },
+      { text: "حضرت الخاتمة", xp: 5 }
+    ]
   },
   {
     id: 9,
-    xp: 7,
     title: "خارطة الطريق",
     badge: "مهندس المسار",
     desc: "إنشاء خارطة طريق مصغرة للحصص القادمة.",
-    items: ["كتبت الجلسات", "حددت المفاهيم", "اخترت الأدوات", "راجعت التسلسل"]
+    items: [
+      { text: "كتبت الجلسات", xp: 5 },
+      { text: "حددت المفاهيم", xp: 6 },
+      { text: "اخترت الأدوات", xp: 4 },
+      { text: "راجعت التسلسل", xp: 7 }
+    ]
   },
   {
     id: 10,
-    xp: 7,
     title: "محاكاة",
     badge: "جاهز للتنفيذ",
     desc: "محاكاة تقديم الحصة قبل تطبيقها فعلياً.",
-    items: ["كتبت السكريبت", "سجلت أو كتبت المحاكاة", "حددت نقاط التحسين"]
+    items: [
+      { text: "كتبت السكريبت", xp: 4 },
+      { text: "سجلت أو كتبت المحاكاة", xp: 8 },
+      { text: "حددت نقاط التحسين", xp: 6 }
+    ]
   },
   {
     id: 11,
-    xp: 8,
     title: "خطة 30 يوم",
     badge: "مدرب المستقبل",
     desc: "تحديد خطة الانطلاق بعد نهاية التحدي.",
-    items: ["اخترت تاريخ البدء", "حددت شكل التدريس", "حددت الجمهور", "كتبت الخطوة القادمة"]
+    items: [
+      { text: "اخترت تاريخ البدء", xp: 3 },
+      { text: "حددت شكل التدريس", xp: 5 },
+      { text: "حددت الجمهور", xp: 6 },
+      { text: "كتبت الخطوة القادمة", xp: 9 }
+    ]
   }
 ];
 
@@ -681,6 +779,30 @@ function safeName() {
   return state.name && state.name.trim() ? state.name.trim() : "رفيقتنا";
 }
 
+function missionTotalXP(mission) {
+  return mission.items.reduce((sum, item) => sum + item.xp, 0);
+}
+
+function earnedXP() {
+  let total = 0;
+
+  missions.forEach(mission => {
+    const checks = state.checks[mission.id] || [];
+
+    mission.items.forEach((item, index) => {
+      if (checks[index]) {
+        total += item.xp;
+      }
+    });
+  });
+
+  return total;
+}
+
+function maxXP() {
+  return missions.reduce((sum, mission) => sum + missionTotalXP(mission), 0);
+}
+
 function load() {
   const data = localStorage.getItem(STORAGE);
 
@@ -688,16 +810,11 @@ function load() {
 
   try {
     const parsed = JSON.parse(data);
-
     state.name = parsed.name || "";
     state.completed = Array.isArray(parsed.completed) ? parsed.completed : [];
     state.checks = parsed.checks || {};
   } catch (error) {
-    state = {
-      name: "",
-      completed: [],
-      checks: {}
-    };
+    state = { name: "", completed: [], checks: {} };
   }
 }
 
@@ -722,27 +839,17 @@ function saveName() {
   toast(`مرحباً يا ${safeName()} 🌷`);
 }
 
-function totalXP() {
-  return missions
-    .filter(m => state.completed.includes(m.id))
-    .reduce((sum, mission) => sum + mission.xp, 0);
-}
-
-function maxXP() {
-  return missions.reduce((sum, mission) => sum + mission.xp, 0);
-}
-
 function level() {
-  const xp = totalXP();
+  const xp = earnedXP();
 
-  if (xp < 10) return "البداية";
-  if (xp < 25) return "في الطريق";
-  if (xp < 45) return "تقدم رائع";
+  if (xp < 20) return "البداية";
+  if (xp < 55) return "في الطريق";
+  if (xp < 100) return "تقدم رائع";
   return "Future Coding Educator";
 }
 
 function updateUI() {
-  document.getElementById("xpBox").innerText = `${totalXP()} XP`;
+  document.getElementById("xpBox").innerText = `${earnedXP()} XP`;
   document.getElementById("levelBox").innerText = level();
 
   document.getElementById("welcomeBox").innerText = state.name
@@ -796,7 +903,7 @@ function renderDays() {
         <div>
           <h3>اليوم ${mission.id}: ${mission.title}</h3>
           <p>${mission.badge}</p>
-          <div class="reward">⭐ +${mission.xp} XP</div>
+          <div class="reward">⭐ مجموع اليوم: ${missionTotalXP(mission)} XP</div>
         </div>
       </div>
       <div>${completed ? "✅" : locked ? "🔒" : "➡️"}</div>
@@ -816,7 +923,7 @@ function openMission(id) {
 
   document.getElementById("missionTitle").innerText = mission.title;
   document.getElementById("missionDesc").innerText = mission.desc;
-  document.getElementById("missionXP").innerText = `⭐ +${mission.xp} XP`;
+  document.getElementById("missionXP").innerText = `⭐ مجموع نقاط اليوم: ${missionTotalXP(mission)} XP`;
 
   const checks = document.getElementById("checks");
   checks.innerHTML = "";
@@ -833,8 +940,11 @@ function openMission(id) {
     div.className = `check ${checked ? "checked" : ""}`;
 
     div.innerHTML = `
-      <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleCheck(${index}, this)">
-      <span>${item}</span>
+      <div class="check-right">
+        <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleCheck(${index}, this)">
+        <span>${item.text}</span>
+      </div>
+      <span class="item-xp">+${item.xp} XP</span>
     `;
 
     checks.appendChild(div);
@@ -851,12 +961,31 @@ function openMission(id) {
 function toggleCheck(index, input) {
   if (!current) return;
 
+  const mission = missions.find(m => m.id === current);
+  const item = mission.items[index];
+
   state.checks[current][index] = input.checked;
-  input.parentElement.classList.toggle("checked", input.checked);
+  input.closest(".check").classList.toggle("checked", input.checked);
+
+  const allChecked = state.checks[current].every(Boolean);
+
+  if (!allChecked && state.completed.includes(current)) {
+    state.completed = state.completed.filter(id => id !== current);
+
+    document.getElementById("completeBtn").style.display = "block";
+    document.getElementById("shareBtn").style.display = "none";
+
+    toast("تم تعديل المهمة، لم تعد مكتملة");
+  } 
+  else if (input.checked) {
+    toast(`+${item.xp} XP تم حفظ تقدمك`);
+  } 
+  else {
+    toast("تم تعديل تقدمك");
+  }
 
   save();
   updateCompleteButton();
-  toast("تم حفظ تقدمك تلقائياً");
 }
 
 function updateCompleteButton() {
@@ -891,29 +1020,36 @@ function completeMission() {
 
   if (window.confetti) {
     confetti({
-      particleCount: 140,
-      spread: 85,
+      particleCount: 150,
+      spread: 90,
       origin: { y: 0.6 },
       colors: ["#4B1D95", "#7C3AED", "#FBBF24", "#22C55E"]
     });
   }
 
-  document.getElementById("rewardTitle").innerText = `أحسنتِ يا ${safeName()}!`;
-  document.getElementById("rewardXP").innerText = `+${mission.xp} XP`;
-  document.getElementById("rewardText").innerText = `تم فتح شارة: ${mission.badge}`;
+  showRewardPopup(mission);
 
-  document.getElementById("rewardScreen").style.display = "flex";
   document.getElementById("completeBtn").style.display = "none";
   document.getElementById("shareBtn").style.display = "block";
 
   if (state.completed.length === missions.length) {
-    setTimeout(showFinal, 1800);
+    setTimeout(showFinal, 2800);
   }
 }
 
-function closeReward() {
-  document.getElementById("rewardScreen").style.display = "none";
-  closeMission();
+function showRewardPopup(mission) {
+  document.getElementById("rewardTitle").innerText = `أحسنتِ يا ${safeName()}!`;
+  document.getElementById("rewardXP").innerText = `+${missionTotalXP(mission)} XP`;
+  document.getElementById("rewardText").innerText = `أنهيتِ يوم: ${mission.title}\nتم فتح شارة: ${mission.badge}`;
+
+  const popup = document.getElementById("rewardPopup");
+  popup.style.display = "flex";
+
+  createIcons();
+
+  setTimeout(() => {
+    popup.style.display = "none";
+  }, 2400);
 }
 
 function closeMission() {
@@ -935,8 +1071,8 @@ function shareWhatsApp() {
 `✅ أنا ${safeName()}
 أنهيت مهمة من تحدي Future Coding Educator
 
-المهمة: ${mission.title}
-المكافأة: +${mission.xp} XP
+اليوم: ${mission.title}
+المكافأة: +${missionTotalXP(mission)} XP
 الشارة: ${mission.badge}
 
 الحمد لله خطوة جديدة تمت بنجاح 🚀`;
@@ -954,7 +1090,7 @@ function showFinal() {
 
   document.getElementById("finalTitle").innerText = `🎉 مبروك يا ${safeName()}!`;
   document.getElementById("certName").innerText = safeName();
-  document.getElementById("certXP").innerText = `${totalXP()} / ${maxXP()} XP`;
+  document.getElementById("certXP").innerText = `${earnedXP()} / ${maxXP()} XP`;
 
   const badges = document.getElementById("badges");
   badges.innerHTML = "";
@@ -968,7 +1104,7 @@ function showFinal() {
 
   if (window.confetti) {
     confetti({
-      particleCount: 180,
+      particleCount: 190,
       spread: 110,
       origin: { y: 0.6 },
       colors: ["#4B1D95", "#7C3AED", "#FBBF24", "#22C55E"]
@@ -988,7 +1124,7 @@ function copyCertificate() {
 
 تقديراً لإكمال تحدي Future Coding Educator بنجاح.
 
-الرصيد النهائي: ${totalXP()} / ${maxXP()} XP
+الرصيد النهائي: ${earnedXP()} / ${maxXP()} XP
 
 لقد قامت ببناء قاعدة عملية أولية للبدء في تعليم البرمجة للأطفال.
 
@@ -1039,7 +1175,7 @@ function resetProgress() {
   current = null;
 
   document.getElementById("finalScreen").style.display = "none";
-  document.getElementById("rewardScreen").style.display = "none";
+  document.getElementById("rewardPopup").style.display = "none";
   document.getElementById("overlay").style.display = "none";
   document.getElementById("nameScreen").style.display = "flex";
 
